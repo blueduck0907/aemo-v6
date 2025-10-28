@@ -1,7 +1,8 @@
 from flask import Flask, jsonify
-from data.mock_data import get_system_info, get_user_profile, get_health_status, get_products_data, get_orders_data
+from data.mock_data import get_system_info, get_user_profile, get_products_data, get_orders_data
 import time
 import random
+import os
 
 app = Flask(__name__)
 
@@ -41,7 +42,47 @@ def health_check():
     global request_count, response_times  # noqa: F824
     start_time = time.time()
     request_count += 1
-    result = jsonify(get_health_status())
+    # Thu thập số liệu thật nếu có, fallback N/A nếu không khả dụng
+    health = {
+        "status": "ok",
+        "uptime_s": None,
+        "cpu_pct": None,
+        "mem_used_mb": None,
+        "mem_total_mb": None,
+    }
+
+    # Uptime
+    try:
+        try:
+            import psutil  # type: ignore
+            boot_ts = psutil.boot_time()
+            health["uptime_s"] = int(time.time() - boot_ts)
+        except Exception:
+            # Fallback: process uptime
+            health["uptime_s"] = int(time.time() - start_time)
+    except Exception:
+        pass
+
+    # CPU and Memory
+    try:
+        try:
+            import psutil  # type: ignore
+            health["cpu_pct"] = float(psutil.cpu_percent(interval=0.1))
+            vm = psutil.virtual_memory()
+            health["mem_used_mb"] = round(vm.used / (1024 * 1024), 2)
+            health["mem_total_mb"] = round(vm.total / (1024 * 1024), 2)
+        except Exception:
+            # Không có psutil → để None
+            pass
+    except Exception:
+        pass
+
+    # Chuẩn hóa giá trị None -> "N/A" cho client
+    for k, v in list(health.items()):
+        if v is None:
+            health[k] = "N/A"
+
+    result = jsonify(health)
     response_times.append(time.time() - start_time)
     # Keep only last 100 response times to prevent memory leak
     if len(response_times) > 100:
