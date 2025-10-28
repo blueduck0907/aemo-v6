@@ -73,18 +73,18 @@ jobs:
         env:
           SHA: ${{ github.sha }}
           REPO_NAME: ${{ github.event.repository.name }}
-          SERVICE_NAME: flask-test-02
+          SERVICE_NAME: flask-test-01
         run: |
           # Method 1: Try to use SERVICE_NAME if provided
           if [ -n "$SERVICE_NAME" ] && [ "$SERVICE_NAME" != "None" ]; then
-            APP_FOLDER="apps/$flask-test-02"
+            APP_FOLDER="apps/$flask-test-01"
             if [ -d "$APP_FOLDER" ]; then
               echo "✅ Using service_name: $APP_FOLDER"
               find "$APP_FOLDER" -name "deployment.yaml" -exec sed -i "s|image: ghcr.io/blueduck0907/aemo-v6:.*|image: ghcr.io/blueduck0907/aemo-v6:${SHA}|g" {} \;
             else
               echo "⚠️ Service folder not found: $APP_FOLDER"
               # Fallback to method 2
-              APP_FOLDER=$(find apps/ -type d -maxdepth 1 -name "*$flask-test-02*" | head -n 1)
+              APP_FOLDER=$(find apps/ -type d -maxdepth 1 -name "*$flask-test-01*" | head -n 1)
               if [ -n "$APP_FOLDER" ]; then
                 echo "✅ Found similar service folder: $APP_FOLDER"
                 find "$APP_FOLDER" -name "deployment.yaml" -exec sed -i "s|image: ghcr.io/blueduck0907/aemo-v6:.*|image: ghcr.io/blueduck0907/aemo-v6:${SHA}|g" {} \;
