@@ -33,7 +33,7 @@ def get_user_profile():
     }
 
 def get_health_status():
-    """Trả về trạng thái sức khỏe hệ thống giả"""
+    """Trả về trạng thái sức khỏe hệ thống giảg"""
     return {
         "health_status": "operational",
         "service_name": "Demo FISS Service",
