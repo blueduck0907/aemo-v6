@@ -11,7 +11,7 @@ response_times = []
 
 @app.route('/api/base')
 def hello():
-    """API endpoint trả về thông tin hệ thống"""
+    """API endpoint trả về thông tin hệ thốsng"""
     global request_count, response_times  # noqa: F824
     start_time = time.time()
     request_count += 1
